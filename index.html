@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head><title>Hello world</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io();
+        function setUsername(){
+            socket.emit('setUsername', document.getElementById('name').value);
+        };
+        var user;
+        socket.on('userExists', function(data){
+            document.getElementById('error-container').innerHTML = data;
+        });
+        socket.on('userSet', function(data){
+            user = data.username;
+            document.body.innerHTML = '<div class="jumbotron text-center"><h2 style="color:#4286f4;">Start chatting.</h2></div>\ <div class="container"><div class="form-group"><div class="col-xs-4"><label for="ex2">Type your message here</label><input class="form-control" type="text" id="message"></br><button class="btn btn-success" type="button" name="button" onclick="sendMessage()">Send</button></div></div></div>\
+                <hr/><div class="container"><div id="message-container"></div></div>';
+        });
+        function sendMessage(){
+            var msg = document.getElementById('message').value;
+            if(msg){
+                socket.emit('msg', {message: msg, user: user});
+            }
+        }
+        socket.on('newmsg', function(data){
+            if(user){
+                document.getElementById('message-container').innerHTML += '<div><b>' + data.user + '</b>: ' + data.message + '</div>'
+            }
+        })
+    </script>
+    <body>
+        <div id="error-container"></div>
+        <div class="jumbotron text-center">
+        <h1>Chat Application</h1>
+        <p>Using web sockets.io (Nodejs)</p>
+        <h4>ENJOY!!</h4>
+        </div>
+        <div class="container">
+        <div class="form-group">
+        <div class="col-xs-4">
+        <label for="ex1">Enter your username please.</label>
+        <input class="form-control" id="name" type="text" name="name" value="" placeholder="Enter your name!"></br>
+        <button class="btn btn-warning" type="button" name="button" onclick="setUsername()">Let me chat!</button>
+        </div>
+        </div>
+        </div>
+
+    </body>
+</html>
